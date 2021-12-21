@@ -68,6 +68,23 @@ public class Queue<E> {
 	}
 	
 	public boolean equals(Object o) {
-		return false; //...for now
+		if(o instanceof Queue) {
+			Queue<E> other = (Queue<E>) o;
+			if(this.size != other.size) {
+				return false;
+			}
+			Node<E> thisCurrent = this.queue.getHead().getNext(),
+					otherCurrent = other.queue.getHead().getNext();
+			//Traverse both queues and compare each element
+			while(thisCurrent != this.queue.getTail()) {
+				if(!thisCurrent.getValue().equals(otherCurrent.getValue())) {
+					return false;
+				}
+				thisCurrent = thisCurrent.getNext();
+				otherCurrent = otherCurrent.getNext();
+			}
+			return true;
+		}
+		return false;
 	}
 }
