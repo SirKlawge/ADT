@@ -82,13 +82,55 @@ public class PriorityQueue<T extends Comparable<T>> {
 			int rChild = lChild + 1;
 			if(rChild < this.size && this.pq[rChild] != null) {
 				//Here, there's a right Child, get the min of the children.
-				
+				int minChild = getMin(lChild, rChild);
+				if(this.getMin(parentIdx, minChild) == minChild) {
+					swap(parentIdx, minChild);
+					minSink(minChild);
+				}
 			}
-			//Here
+			//Here, there's only a left child.  No right child. Compare lChild to parent
+			if(this.getMin(lChild, parentIdx) == lChild) {
+				swap(parentIdx, lChild);
+			}
 		}
 	}
 	
-	private void maxSink(int parentIdx) {}
+	private void maxSink(int parentIdx) {
+		int lChild = (2 * parentIdx) + 1;
+		//Check for a left child
+		if(lChild < this.size && this.pq[lChild] != null) {
+			//Here, there's a left child, so check for a right child
+			int rChild = lChild + 1;
+			if(rChild < this.size && this.pq[rChild] != null) {
+				//Here, there's a right Child, get the max of the children.
+				int minChild = getMax(lChild, rChild);
+				if(this.getMin(parentIdx, minChild) == minChild) {
+					swap(parentIdx, minChild);
+					minSink(minChild);
+				}
+			}
+			//Here, there's only a left child.  No right child. Compare lChild to parent
+			if(this.getMax(lChild, parentIdx) == lChild) {
+				swap(parentIdx, lChild);
+			}
+		}
+	}
+	
+	private int getMin(int idx1, int idx2) {
+		if(this.pq[idx1].compareTo(this.pq[idx2]) == -1) {
+			return idx1;
+		}
+		return idx2;
+	}
+	
+	private int getMax(int idx1, int idx2) {
+		if(this.pq[idx1].compareTo(this.pq[idx2]) == 1) {
+			return idx1;
+		}
+		return idx2;
+	}
+	
+	
 	
 	public T del() {
 		T removed = null;
@@ -112,7 +154,7 @@ public class PriorityQueue<T extends Comparable<T>> {
 		}else {
 			this.maxSink(0);
 		}
-		return null;
+		return removed;
 	}
 	
 	public int size() {
