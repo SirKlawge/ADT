@@ -1,4 +1,16 @@
-
+/**@author Ventura Abram
+ * This class implements a priority queue which can either be backed by a binary min
+ * heap or a binary max heap.
+ * To get a min heap PQ, instantiate by passing in MIN from the MIN_MAX enum:
+ * new PriorityQueue<>(MIN_MAX.MIN);
+ * 
+ * To get a max heap PQ, instantiate by passing MAX from the MIN_MAX enum
+ * new PriorityQueue<>(MIN_MAX.MAX);
+ * 
+ * add(T item) adds an item to the PQ
+ * del() removes and returns the max or min item from a non-empty PQ
+ * peek() returns, but does not remove, the max or min item from an non-empty PQ
+ * */
 public class PriorityQueue<T extends Comparable<T>> {
 	private MIN_MAX minMax;
 	private T[] pq;
@@ -28,7 +40,7 @@ public class PriorityQueue<T extends Comparable<T>> {
 	public void resize(int newCap) {
 		//Make a new array
 		T[] newArray = (T[]) new Comparable[newCap];
-		for(int i = 0; i < this.pq.length; i++) {
+		for(int i = 0; i < this.size; i++) {
 			//copy the contents of the old one to the new one.
 			newArray[i] = this.pq[i];
 		}
@@ -104,9 +116,9 @@ public class PriorityQueue<T extends Comparable<T>> {
 			if(rChild < this.size && this.pq[rChild] != null) {
 				//Here, there's a right Child, get the max of the children.
 				int minChild = getMax(lChild, rChild);
-				if(this.getMin(parentIdx, minChild) == minChild) {
+				if(this.getMax(parentIdx, minChild) == minChild) {
 					swap(parentIdx, minChild);
-					minSink(minChild);
+					maxSink(minChild);
 				}
 			}
 			//Here, there's only a left child.  No right child. Compare lChild to parent
@@ -149,12 +161,35 @@ public class PriorityQueue<T extends Comparable<T>> {
 		T removed = this.pq[0];
 		this.swap(0, this.size - 1);
 		this.pq[this.size - 1] = null;
+		this.size--;
 		if(this.minMax.equals(MIN_MAX.MIN)) {
 			this.minSink(0);
 		}else {
 			this.maxSink(0);
 		}
+		//Check for the size of the array
+		double ratio = (double) this.size / this.pq.length;
+		if(ratio < 0.25 && (this.pq.length / 2) >= 20) {
+			this.resize(this.pq.length / 2);
+		}
 		return removed;
+	}
+	
+	public T peek() {
+		T first = null;
+		try {
+			first = peekHelper();
+		}catch(EmptyStructureException e) {
+			e.printStackTrace();
+		}
+		return first;
+	}
+	
+	private T peekHelper() throws EmptyStructureException{
+		if(this.isEmpty()) {
+			throw new EmptyStructureException();
+		}
+		return this.pq[0];
 	}
 	
 	public int size() {
