@@ -1,6 +1,6 @@
 //Hashtable uses modular hashing and linear probing
 public class Hashtable<K, V> {
-	private Pair[] table;
+	public Pair[] table;
 	private int size;
 	
 	public Hashtable() {
@@ -42,8 +42,8 @@ public class Hashtable<K, V> {
 		Pair[] newTable = new Pair[newSize], copy = this.table;
 		this.table = newTable;
 		this.size = 0;
-		for(int i = 0; i < this.table.length; i++) {
-			if(this.table[i] != null && !this.table[i].isRemoved()) {
+		for(int i = 0; i < copy.length; i++) {
+			if(copy[i] != null && !copy[i].isRemoved()) {
 				this.put((K) copy[i].getKey(), (V) copy[i].getValue());
 			}
 		}
@@ -88,15 +88,79 @@ public class Hashtable<K, V> {
     }
 	
 	public V get(K key) {
+		V item = null;
+		try {
+			item = getHelper(key).getValue();
+		}catch (EmptyStructureException e) {
+			e.printStackTrace();
+		}
+		return item;
+	}
+	
+	//Return, but dont remove, the value associated with the provided key
+	//Else, return null
+	private Pair<K, V> getHelper(K key) throws EmptyStructureException{
+		if(this.isEmpty()) {
+			throw new EmptyStructureException();
+		}
+		int hashcode = key.hashCode();
+		int tableIdx = hashcode / this.table.length;
+		//Start by looking at tableIdx then traverse from there.
+		while(this.table[tableIdx] != null) {
+			if(this.table[tableIdx].getKey().equals(key) &&
+			   !this.table[tableIdx].isRemoved()) {
+				return (Pair<K, V>) this.table[tableIdx];
+			}
+			tableIdx++;
+			if(tableIdx == this.table.length) {
+				tableIdx = 0;
+			}
+		}
 		return null;
 	}
 	
 	public V remove(K key) {
+		V removed = null;
+		try {
+			removed = removeHelper(key);
+		}catch(EmptyStructureException e) {
+			e.printStackTrace();
+		}
+		return removed;
+	}
+	
+	private V removeHelper(K key) throws EmptyStructureException{
+		Pair<K, V> pair = this.getHelper(key);
+		if(pair != null) {
+			pair.setRemoved();
+			this.size--;
+			//Check for resizing
+			double currentLF = (double) this.size / this.table.length;
+			if(currentLF < (1.0/8.0) && (this.table.length / 2) >= 23) {
+				this.resize(nextPrime(this.table.length / 2));
+			}
+			return pair.getValue();
+		}
 		return null;
 	}
 	
+	public int size() {
+		return this.size;
+	}
+	
+	public boolean isEmpty() {
+		return this.size == 0;
+	}
+	
 	public String toString() {
+		if(this.isEmpty()) {
+			return "[]";
+		}
 		String result = "[";
+		for(int i = 0; i < this.table.length; i++) {
+			result += this.table[i] + ", ";
+		}
+		result = result.substring(0, result.length() - 2);
 		return result;
 	}
 }
