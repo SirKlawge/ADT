@@ -78,22 +78,24 @@ public class BST<K extends Comparable<K>, V> {
 	}
 	
 	public V remove(K key) {
-		Node<K, V> removedNode = null;
+		V removedValue = null;
 		try {
-			removedNode = removeHelper(key);
+			removedValue = removeHelper(key);
 		}catch(EmptyStructureException e) {
 			e.printStackTrace();
 		}
-		if(removedNode == null) {
+		if(removedValue == null) {
 			return null;
 		}
-		return removedNode.value;
+		return removedValue;
 	}
 	
-	private Node<K, V> removeHelper(K key) throws EmptyStructureException{
+	private V removeHelper(K key) throws EmptyStructureException{
 		//First try to get the node with the provided key
 		Node<K, V> removed = this.getHelper(key, this.root);
+		V removedValue = null;
 		if(removed != null) {
+			removedValue = removed.value;
 			//Here, the Node with key was actually in the tree.  Check if leaf
 			if(removed.left == null && removed.right == null) {
 				//Here, removed is a leaf, so just nullify it
@@ -105,12 +107,47 @@ public class BST<K extends Comparable<K>, V> {
 			}else {
 				//Here, removed is not a leaf, so get the successor
 				Node<K, V> successor = this.getSuccessor(removed);
-				//Swap data of successor and removed
-				this.swap(removed, successor);
-				//Nullify the successor
+				//The successor could be removed's right child. Check
+				if(removed.right.key.equals(successor.key)) {
+					//Does removed have a parent?
+					if(removed.parent != null) {
+						//If so, that's now the successor's parent
+						successor.parent = removed.parent;
+						//And removed's parent should have successor as a child
+						if(removed.key.equals(removed.parent.left.key)) {
+							removed.parent.left = successor; //removed was the left child
+						}else {
+							removed.parent.right = successor;
+						}
+					}
+					//Tend to the children of removed
+					if(removed.left != null) {
+						//They're now successor's left children
+						removed.left.parent = successor;
+						successor.left = removed.left;
+					}
+				}else {
+					//Here, the successor isn't removed's right child
+					
+				}
 			}
 		}
-		return removed;
+		return removedValue;
+	}
+	
+	private Node<K, V> getSuccessor(Node<K, V> removed) {
+		Node<K, V> successor = null;
+		//First check to see if removed has a right child
+		if(removed.right != null) {
+			//Now repeatedly go to the left until you can't anymore
+			successor = removed.right;
+			while(successor.left != null) {
+				successor = successor.left;
+			}
+			//successor should now truly be the next greatest number after removed
+		}
+		//Here, successor will be either null or a node
+		return successor;
 	}
 	
 	public int size() {
