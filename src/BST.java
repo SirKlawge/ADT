@@ -3,7 +3,7 @@
  * this do other than sort numbers?  Could I use this in its current state to store 
  * key value pairs?  If the key-value pairs have*/
 public class BST<K extends Comparable<K>, V> {
-	private Node<K, V> root;
+	public Node<K, V> root;
 	private int size;
 	
 	public BST() {
@@ -61,7 +61,7 @@ public class BST<K extends Comparable<K>, V> {
 		return node.value;
 	}
 	
-	private Node<K, V> getHelper(K key, Node<K, V> current) throws EmptyStructureException {
+	public Node<K, V> getHelper(K key, Node<K, V> current) throws EmptyStructureException {
 		if(this.isEmpty()) {
 			throw new EmptyStructureException();
 		}
@@ -86,6 +86,8 @@ public class BST<K extends Comparable<K>, V> {
 		}
 		if(removedValue == null) {
 			return null;
+		}else {
+			this.size--;
 		}
 		return removedValue;
 	}
@@ -97,7 +99,8 @@ public class BST<K extends Comparable<K>, V> {
 		if(removed != null) {
 			removedValue = removed.value;
 			//Here, the Node with key was actually in the tree.  Check if leaf
-			if(removed.left == null && removed.right == null) {
+			if(removed.isLeaf()) {
+				System.out.println("Removed is a leaf and has no successor");
 				//Here, removed is a leaf, so just nullify it
 				if(removed.key.equals(removed.parent.left.key)) {
 					removed.parent.left = null;
@@ -109,30 +112,45 @@ public class BST<K extends Comparable<K>, V> {
 				Node<K, V> successor = this.getSuccessor(removed);
 				//The successor could be removed's right child. Check
 				if(removed.right.key.equals(successor.key)) {
-					//Does removed have a parent?
-					if(removed.parent != null) {
-						//If so, that's now the successor's parent
-						successor.parent = removed.parent;
-						//And removed's parent should have successor as a child
-						if(removed.key.equals(removed.parent.left.key)) {
-							removed.parent.left = successor; //removed was the left child
-						}else {
-							removed.parent.right = successor;
-						}
+					System.out.println("Successor is removed's right child");
+					removed.key = successor.key;
+					removed.value = successor.value;
+					if(!successor.isLeaf()) {
+						successor.right.parent = removed;
 					}
-					//Tend to the children of removed
-					if(removed.left != null) {
-						//They're now successor's left children
-						removed.left.parent = successor;
-						successor.left = removed.left;
-					}
+					removed.right = successor.right;
 				}else {
 					//Here, the successor isn't removed's right child
-					
+					//Put successor's key and value in removed's spot
+					removed.key = successor.key;
+					removed.value = successor.value;
+					//Check the successor for a right child and switch parents
+					if(successor.right != null) {
+						successor.right.parent = successor.parent;
+						successor.parent.left = successor.right;
+						//Now nothing points at the successor
+					}else {
+						//Here, the successor is a leaf
+						successor.parent.left = null;
+					}
 				}
 			}
 		}
 		return removedValue;
+	}
+	
+	//Regular leaf removal handling.  Like a rake
+	private void handleLeaf(Node<K, V> removed) {
+		//Here, removed is a leaf, so just nullify it
+		if(removed.key.equals(removed.parent.left.key)) {
+			removed.parent.left = null;
+		}else {
+			removed.parent.right = null;
+		}
+	}
+	
+	private void handleNoSuccessor(Node<K, V> removed) {
+		
 	}
 	
 	private Node<K, V> getSuccessor(Node<K, V> removed) {
@@ -162,10 +180,10 @@ public class BST<K extends Comparable<K>, V> {
 		return this.root.toString();
 	}
 	//-------------------------------------
-	private class Node<K extends Comparable<K>, V>{
-		private Node<K, V> left, right, parent;
-		private K key;
-		private V value;
+	public class Node<K extends Comparable<K>, V>{
+		public Node<K, V> left, right, parent;
+		public K key;
+		public V value;
 		
 		public Node(K key, V value) {
 			this.key = key;
@@ -173,6 +191,10 @@ public class BST<K extends Comparable<K>, V> {
 			this.left = null;
 			this.right = null;
 			this.parent = null;
+		}
+		
+		private boolean isLeaf() {
+			return this.left == null && this.right == null;
 		}
 		
 		public String toString() {
