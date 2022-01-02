@@ -3,12 +3,16 @@
  * this do other than sort numbers?  Could I use this in its current state to store 
  * key value pairs?  If the key-value pairs have*/
 public class BST<K extends Comparable<K>, V> {
-	public Node<K, V> root;
+	private Node<K, V> root;
 	private int size;
+	private K[] keyArray;
+	private V[] valueArray;
 	
 	public BST() {
 		this.root = null;
 		this.size = 0;
+		this.keyArray = (K[]) new Comparable[this.size];
+		this.valueArray = (V[]) new Object[this.size];
 	}
 	
 	public void put(K key, V value) {
@@ -61,7 +65,7 @@ public class BST<K extends Comparable<K>, V> {
 		return node.value;
 	}
 	
-	public Node<K, V> getHelper(K key, Node<K, V> current) throws EmptyStructureException {
+	private Node<K, V> getHelper(K key, Node<K, V> current) throws EmptyStructureException {
 		if(this.isEmpty()) {
 			throw new EmptyStructureException();
 		}
@@ -92,47 +96,45 @@ public class BST<K extends Comparable<K>, V> {
 		return removedValue;
 	}
 	
-	private V removeHelper(K key) throws EmptyStructureException{
-		//First try to get the node with the provided key
+	private V removeHelper(K key) throws EmptyStructureException {
+		if(this.isEmpty()) {
+			throw new EmptyStructureException();
+		}
+		//Search for the key and store the result
 		Node<K, V> removed = this.getHelper(key, this.root);
 		V removedValue = null;
 		if(removed != null) {
 			removedValue = removed.value;
-			//Here, the Node with key was actually in the tree.  Check if leaf
+			//Handle when removed is a leaf
 			if(removed.isLeaf()) {
-				System.out.println("Removed is a leaf and has no successor");
-				//Here, removed is a leaf, so just nullify it
-				if(removed.key.equals(removed.parent.left.key)) {
-					removed.parent.left = null;
-				}else {
-					removed.parent.right = null;
-				}
+				this.handleLeaf(removed);
 			}else {
-				//Here, removed is not a leaf, so get the successor
+				//Here, removed is not a leaf and may have a successor. Check
 				Node<K, V> successor = this.getSuccessor(removed);
-				//The successor could be removed's right child. Check
-				if(removed.right.key.equals(successor.key)) {
-					System.out.println("Successor is removed's right child");
+				if(successor != null) {
+					//Replace removed's key and value with successor's key and value
 					removed.key = successor.key;
 					removed.value = successor.value;
-					if(!successor.isLeaf()) {
-						successor.right.parent = removed;
-					}
-					removed.right = successor.right;
-				}else {
-					//Here, the successor isn't removed's right child
-					//Put successor's key and value in removed's spot
-					removed.key = successor.key;
-					removed.value = successor.value;
-					//Check the successor for a right child and switch parents
-					if(successor.right != null) {
-						successor.right.parent = successor.parent;
-						successor.parent.left = successor.right;
-						//Now nothing points at the successor
+					//Here there is a successor, either removed's right or further down
+					if(removed.right.key.equals(successor.key)) {
+						//Here, removed's successor is its right child
+						if(!successor.isLeaf()) {
+							successor.right.parent = removed;
+						}
+						removed.right = successor.right;
 					}else {
-						//Here, the successor is a leaf
-						successor.parent.left = null;
+						//Here, the successor isn't removed's right child. See if succ has right
+						if(successor.right != null) {
+							successor.right.parent = successor.parent;
+							successor.parent.left = successor.right;
+						}else {
+							//Here the successor is a leaf
+							successor.parent.left = null;
+						}
 					}
+				}else {
+					//No successor, so removed has no right child.
+					this.handleNoSuccessor(removed);
 				}
 			}
 		}
@@ -142,15 +144,31 @@ public class BST<K extends Comparable<K>, V> {
 	//Regular leaf removal handling.  Like a rake
 	private void handleLeaf(Node<K, V> removed) {
 		//Here, removed is a leaf, so just nullify it
-		if(removed.key.equals(removed.parent.left.key)) {
-			removed.parent.left = null;
+		if(removed.parent != null) {
+			if(removed.key.equals(removed.parent.left.key)) {
+				removed.parent.left = null;
+			}else {
+				removed.parent.right = null;
+			}	
 		}else {
-			removed.parent.right = null;
+			//Here, you're removing leaf with no parents?  That's the root.
+			removed.key = null;
+			removed.value = null;
 		}
 	}
 	
+	/**finding a successor involves looking right then left of removed.  If there is no
+	 * successor, then we ought to check for removed's left child.*/
 	private void handleNoSuccessor(Node<K, V> removed) {
-		
+		//Check to see if removed has a left child
+		if(removed.left != null) {
+			removed.left.parent = removed.parent;
+			//Does removed have a parent?
+			if(removed.parent != null) {
+				removed.parent.left = removed.left;
+			}
+		}
+		this.root = removed.left;
 	}
 	
 	private Node<K, V> getSuccessor(Node<K, V> removed) {
@@ -168,6 +186,42 @@ public class BST<K extends Comparable<K>, V> {
 		return successor;
 	}
 	
+	public void printInOrder() {
+		printInOrderHelper(this.root);
+	}
+	
+	private void printInOrderHelper(Node<K, V> current) {
+		if(current.left != null) {
+			printInOrderHelper(current.left);
+		}
+		System.out.println(current.key);
+		if(current.right != null) {
+			printInOrderHelper(current.right);
+		}
+	}
+	
+	public K[] keyArray() {
+		if(this.size == this.keyArray.length) {
+			return this.keyArray;
+		}
+		this.keyArray = (K[]) new Comparable[this.size];
+		keyArrayHelper(this.root, 0);
+		return this.keyArray;
+	}
+	
+	private void keyArrayHelper(Node<K, V> current, int index) {
+		Node<K, V> temp = current;
+		if(current.left != null) {
+			keyArrayHelper(current.left, index);
+		}
+		System.out.println(current.key + " at index " + index);
+		this.keyArray[index] = current.key;
+		keyArrayHelper(temp, index + 1);
+		if(current.right != null) {
+			keyArrayHelper(current.right, index);
+		}
+	}
+	
 	public int size() {
 		return this.size;
 	}
@@ -181,9 +235,9 @@ public class BST<K extends Comparable<K>, V> {
 	}
 	//-------------------------------------
 	public class Node<K extends Comparable<K>, V>{
-		public Node<K, V> left, right, parent;
-		public K key;
-		public V value;
+		private Node<K, V> left, right, parent;
+		private K key;
+		private V value;
 		
 		public Node(K key, V value) {
 			this.key = key;

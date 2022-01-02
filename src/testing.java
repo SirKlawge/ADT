@@ -10,11 +10,10 @@ public class testing {
 		bst.put(12, "Keneal-San");
 		bst.put(8, "Keneal-San");
 		System.out.println(bst);
-		while(!bst.isEmpty()) {
-			System.out.println("Removing " + bst.root.key);
-			bst.remove(bst.root.key);
-			System.out.println(bst);
-		}
+		Object[] keyArray = bst.keyArray();
+//		for(int i = 0;  i < keyArray.length; i++) {
+//			System.out.println(keyArray[i]);
+//		}
 	}
 
 }
