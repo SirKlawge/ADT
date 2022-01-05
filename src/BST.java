@@ -2,17 +2,20 @@
  * What value would this BST be?  If you're not storing key value pairs, then what does
  * this do other than sort numbers?  Could I use this in its current state to store 
  * key value pairs?  If the key-value pairs have*/
+import java.util.List;
+import java.util.ArrayList;
+
 public class BST<K extends Comparable<K>, V> {
 	private Node<K, V> root;
 	private int size;
-	private K[] keyArray;
-	private V[] valueArray;
+	private List<K> keyArray;
+	private List<V> valueArray;
 	
 	public BST() {
 		this.root = null;
 		this.size = 0;
-		this.keyArray = (K[]) new Comparable[this.size];
-		this.valueArray = (V[]) new Object[this.size];
+		this.keyArray = new ArrayList<K>();
+		this.valueArray = new ArrayList<V>();
 	}
 	
 	public void put(K key, V value) {
@@ -200,25 +203,41 @@ public class BST<K extends Comparable<K>, V> {
 		}
 	}
 	
-	public K[] keyArray() {
-		if(this.size == this.keyArray.length) {
-			return this.keyArray;
+	public Object[] keyArray() {
+		if(this.size == this.keyArray.size()) {
+			return this.keyArray.toArray();
 		}
-		this.keyArray = (K[]) new Comparable[this.size];
-		keyArrayHelper(this.root, 0);
-		return this.keyArray;
+		this.keyArray = new ArrayList<K>();
+		keyArrayHelper(this.root);
+		return this.keyArray.toArray();
 	}
 	
-	private void keyArrayHelper(Node<K, V> current, int index) {
-		Node<K, V> temp = current;
+	private void keyArrayHelper(Node<K, V> current) {
 		if(current.left != null) {
-			keyArrayHelper(current.left, index);
+			keyArrayHelper(current.left);
 		}
-		System.out.println(current.key + " at index " + index);
-		this.keyArray[index] = current.key;
-		keyArrayHelper(temp, index + 1);
+		this.keyArray.add(current.key);
 		if(current.right != null) {
-			keyArrayHelper(current.right, index);
+			keyArrayHelper(current.right);
+		}
+	}
+	
+	public Object[] valueArray() {
+		if(this.size == this.keyArray.size()) {
+			return this.valueArray.toArray();
+		}
+		this.valueArray = new ArrayList<V>();
+		valueArrayHelper(this.root);
+		return this.valueArray.toArray();
+	}
+	
+	private void valueArrayHelper(Node<K, V> current) {
+		if(current.left != null) {
+			valueArrayHelper(current.left);
+		}
+		this.valueArray.add(current.value);
+		if(current.right != null) {
+			valueArrayHelper(current.right);
 		}
 	}
 	

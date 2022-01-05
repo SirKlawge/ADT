@@ -1,0 +1,44 @@
+
+public class TwoNode<K extends Comparable<K>, V> extends TTNode<K, V>{
+	private TTTPair<K, V> pair1;
+	private TTNode<K, V> first, second, parent;
+	
+	public TwoNode(TTTPair<K, V> pair1) {
+		this.pair1 = pair1;
+		this.first = null; //AKA left child
+		this.second = null; //AKA right child
+		this.parent = null;
+	}
+	
+	public TTTPair<K, V> getPair1(){
+		return this.pair1;
+	}
+	
+	public void setPair1(TTTPair<K, V> pair1) {
+		this.pair1 = pair1;
+	}
+	
+	public TTNode<K, V> getfirst(){
+		return this.first;
+	}
+	
+	public void setfirst(TTNode<K, V> first) {
+		this.first = first;
+	}
+	
+	public TTNode<K, V> getsecond(){
+		return this.second;
+	}
+	
+	public void setsecond(TTNode<K, V> second) {
+		this.second = second;
+	}
+	
+	public TTNode<K, V> getParent(){
+		return this.parent;
+	}
+	
+	public void setParent(TTNode<K, V> parent) {
+		this.parent = parent;
+	}
+}
