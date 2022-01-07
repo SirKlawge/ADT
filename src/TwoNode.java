@@ -18,16 +18,8 @@ public class TwoNode<K extends Comparable<K>, V> extends TTNode<K, V>{
 		this.pair1 = pair1;
 	}
 	
-	public TTNode<K, V> getfirst(){
-		return this.first;
-	}
-	
 	public void setfirst(TTNode<K, V> first) {
 		this.first = first;
-	}
-	
-	public TTNode<K, V> getsecond(){
-		return this.second;
 	}
 	
 	public void setsecond(TTNode<K, V> second) {
@@ -41,4 +33,34 @@ public class TwoNode<K extends Comparable<K>, V> extends TTNode<K, V>{
 	public void setParent(TTNode<K, V> parent) {
 		this.parent = parent;
 	}
+
+	@Override
+	public TTTPair<K, V> getMinPair() {
+		return this.pair1;
+	}
+
+	@Override
+	public TTTPair<K, V> getMaxPair() {
+		return this.pair1;
+	}
+
+	@Override
+	public boolean isLeaf() {
+		return this.first == null && this.second == null;
+	}
+
+	@Override
+	public TTNode<K, V> getFirst() {
+		return this.first;
+	}
+
+	@Override
+	public TTNode<K, V> getLast() {
+		return this.second;
+	}
+	
+	public String toString() {
+		return "[" + this.pair1.getKey() + ", " + this.first + ", " + this.second + "]";
+	}
+
 }

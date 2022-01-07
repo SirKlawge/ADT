@@ -62,10 +62,6 @@ public class FourNode<K extends Comparable<K>, V> extends TTNode<K, V> {
 		this.third = third;
 	}
 
-	public TTNode<K, V> getFourth() {
-		return this.fourth;
-	}
-
 	public void setFourth(TTNode<K, V> fourth) {
 		this.fourth = fourth;
 	}
@@ -76,6 +72,26 @@ public class FourNode<K extends Comparable<K>, V> extends TTNode<K, V> {
 
 	public void setParent(TTNode<K, V> parent) {
 		this.parent = parent;
+	}
+
+	@Override
+	public TTTPair<K, V> getMinPair() {
+		return this.pair1;
+	}
+
+	@Override
+	public TTTPair<K, V> getMaxPair() {
+		return this.pair3;
+	}
+
+	@Override
+	public boolean isLeaf() {
+		return (this.first == null) && (this.second == null) && (this.third == null) && (this.fourth == null);
+	}
+
+	@Override
+	public TTNode<K, V> getLast() {
+		return this.fourth;
 	}
 	
 }

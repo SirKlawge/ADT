@@ -11,7 +11,7 @@ public class ThreeNode<K extends Comparable<K>, V> extends TTNode<K, V> {
 		this.third = null;
 		this.parent = null;
 	}
-
+	
 	public TTNode<K, V> getParent() {
 		return this.parent;
 	}
@@ -52,13 +52,32 @@ public class ThreeNode<K extends Comparable<K>, V> extends TTNode<K, V> {
 		this.second = second;
 	}
 
-	public TTNode<K, V> getThird() {
-		return this.third;
-	}
-
 	public void setThird(TTNode<K, V> third) {
 		this.third = third;
 	}
+
+	@Override
+	public TTTPair<K, V> getMinPair() {
+		return this.pair1;
+	}
+
+	@Override
+	public TTTPair<K, V> getMaxPair() {
+		return this.pair2;
+	}
+
+	@Override
+	public boolean isLeaf() {
+		return this.first == null && this.second == null && this.third == null;
+	}
+
+	@Override
+	public TTNode<K, V> getLast() {
+		return this.third;
+	}
 	
+	public String toString() {
+		return "[{" + this.pair1.getKey() + ", " + this.pair2.getKey() + "} " + this.first + ", " + this.second + ", " + this.third + "]";
+	}
 	
 }
